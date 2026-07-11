@@ -7,7 +7,7 @@ import './styles/global.less';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename="/knowledge">
       <ThemeProvider>
         <App />
       </ThemeProvider>
