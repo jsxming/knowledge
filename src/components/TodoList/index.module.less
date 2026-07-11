@@ -1,0 +1,75 @@
+.cardBody {
+  padding: 16px;
+}
+
+.cardTitle {
+  color: var(--text-color);
+}
+
+.listIcon {
+  margin-right: 6px;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-left: 8px;
+}
+
+.inputWrapper {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.todoInput {
+  background: var(--bg-color);
+  border-radius: 6px;
+}
+
+.listContainer {
+  max-height: 280px;
+  overflow: auto;
+}
+
+.todoItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.todoItem:hover {
+  background: var(--glass-bg);
+}
+
+.todoItemCompleted {
+  opacity: 0.6;
+}
+
+.todoContent {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.todoTextWrapper {
+  flex: 1;
+}
+
+.todoText {
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+.todoTextDone {
+  text-decoration: line-through;
+}
+
+.todoDate {
+  font-size: 11px;
+  color: var(--text-secondary);
+}

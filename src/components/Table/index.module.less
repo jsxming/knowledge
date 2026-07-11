@@ -1,0 +1,100 @@
+.tableWrapper {
+  :global {
+    .ant-table-wrapper {
+      // 表格容器背景
+      .ant-table {
+        background: var(--bg-color);
+        color: var(--text-color);
+      }
+
+      // 表头样式
+      .ant-table-thead > tr > th {
+        background: var(--header-bg);
+        color: var(--text-color);
+        border-bottom: 1px solid var(--border-color);
+        font-weight: 600;
+        white-space: nowrap;
+
+        &::before {
+          background-color: var(--border-color) !important;
+        }
+      }
+
+      // 表格行样式
+      .ant-table-tbody > tr > td {
+        border-bottom: 1px solid var(--border-color);
+        color: var(--text-color);
+        transition: background-color 0.2s ease;
+      }
+
+      // 行悬停
+      .ant-table-tbody > tr:hover > td {
+        background: color-mix(in srgb, var(--header-bg) 50%, transparent);
+      }
+
+      // 斑马纹 - 偶数列 (可选, 默认不启用)
+      .ant-table-tbody > tr:nth-child(even) > td {
+        // background: color-mix(in srgb, var(--header-bg) 30%, transparent);
+      }
+
+      // 空状态
+      .ant-table-placeholder {
+        .ant-table-cell {
+          background: var(--bg-color);
+          border-bottom: none;
+        }
+
+        &:hover > td {
+          background: var(--bg-color) !important;
+        }
+      }
+    }
+
+    // 分页器样式
+    .ant-pagination {
+      margin: 16px 0;
+      display: flex;
+      justify-content: flex-end;
+
+      .ant-pagination-item {
+        border-color: var(--border-color);
+        color: var(--text-color);
+        transition: all 0.2s ease;
+
+        a {
+          color: var(--text-color);
+        }
+
+        &:hover {
+          border-color: var(--gradient-1, #1677ff);
+        }
+
+        &-active {
+          border-color: var(--gradient-1, #1677ff);
+
+          a {
+            color: var(--gradient-1, #1677ff);
+          }
+        }
+      }
+
+      .ant-pagination-prev,
+      .ant-pagination-next {
+        .ant-pagination-item-link {
+          border-color: var(--border-color);
+          color: var(--text-color);
+        }
+
+        &:hover .ant-pagination-item-link {
+          border-color: var(--gradient-1, #1677ff);
+          color: var(--gradient-1, #1677ff);
+        }
+      }
+    }
+
+    // 加载指示器
+    .ant-spin {
+      color: var(--gradient-1, #1677ff);
+    }
+  }
+}

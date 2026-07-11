@@ -1,0 +1,172 @@
+.container {
+  padding: 8px 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.titleIcon {
+  font-size: 22px;
+}
+
+.searchBar {
+  width: 260px;
+}
+
+/* 分类区域 */
+.categorySection {
+  margin-bottom: 32px;
+}
+
+.categoryHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.categoryIcon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.categoryName {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+}
+
+.linkCount {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-left: 4px;
+}
+
+/* 链接卡片 */
+.linkCard {
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  height: 100%;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+}
+
+.linkCard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--gradient-1);
+}
+
+.linkCardBody {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.favicon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: var(--gradient-2);
+  overflow: hidden;
+}
+
+.faviconImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.linkInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.linkTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-color);
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.linkDesc {
+  font-size: 12px;
+  color: var(--text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.linkUrl {
+  font-size: 11px;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+.deleteBtn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.linkCard:hover .deleteBtn {
+  opacity: 0.6;
+}
+
+.linkCard:hover .deleteBtn:hover {
+  opacity: 1;
+  color: #ff4d4f;
+}
+
+/* 空状态 */
+.emptyState {
+  text-align: center;
+  padding: 48px 0;
+  color: var(--text-secondary);
+}
+
+.emptyIcon {
+  font-size: 48px;
+  margin-bottom: 12px;
+}
+
+.emptyText {
+  font-size: 14px;
+}
