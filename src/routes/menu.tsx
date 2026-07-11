@@ -9,7 +9,6 @@ export const menuItems: MenuItem[] = [
     label: 'Company',
     children: [
       { key: companyPath.BASE, label: '常用' },
-      { key: companyPath.PASSWORD, label: 'Password' },
     ],
   },
 ];
