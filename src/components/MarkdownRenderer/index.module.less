@@ -1,0 +1,225 @@
+.container {
+  padding: 8px 0;
+}
+
+.header {
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-color);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.titleIcon {
+  font-size: 22px;
+}
+
+/* ── MDX 内容区域 ── */
+
+.mdxWrapper {
+  padding: 24px;
+  border-radius: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  line-height: 1.8;
+}
+
+/* 标题 */
+.mdxWrapper h1 {
+  font-size: 26px;
+  color: var(--text-color);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+}
+
+.mdxWrapper h2 {
+  font-size: 20px;
+  color: var(--text-color);
+  margin-top: 32px;
+  margin-bottom: 16px;
+}
+
+.mdxWrapper h3 {
+  font-size: 16px;
+  color: var(--text-color);
+  margin-top: 24px;
+  margin-bottom: 12px;
+}
+
+/* 段落 */
+.mdxWrapper p {
+  margin-bottom: 16px;
+  color: var(--text-color);
+}
+
+/* 行内代码 */
+.mdxWrapper code {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--gradient-2);
+  font-size: 0.9em;
+}
+
+/* 代码块 */
+.mdxWrapper pre {
+  padding: 16px;
+  border-radius: 8px;
+  background: var(--gradient-2);
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+
+.mdxWrapper pre code {
+  padding: 0;
+  background: none;
+}
+
+/* 引用 */
+.mdxWrapper blockquote {
+  margin: 16px 0;
+  padding: 12px 20px;
+  border-left: 4px solid var(--gradient-1);
+  background: var(--gradient-2);
+  border-radius: 0 8px 8px 0;
+  color: var(--text-secondary);
+}
+
+/* 表格 */
+.mdxWrapper {
+  overflow-x: auto;
+}
+
+.mdxWrapper table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+  min-width: 400px;
+}
+
+.mdxWrapper th,
+.mdxWrapper td {
+  padding: 10px 14px;
+  border: 1px solid var(--border-color);
+  text-align: left;
+  white-space: normal;
+  word-break: break-word;
+}
+
+.mdxWrapper th {
+  background: var(--gradient-2);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.mdxWrapper td:first-child {
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.mdxWrapper tr:nth-child(even) {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.mdxWrapper tr:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="dark"] .mdxWrapper tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+[data-theme="dark"] .mdxWrapper tr:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* 列表 */
+.mdxWrapper ul,
+.mdxWrapper ol {
+  padding-left: 24px;
+  margin-bottom: 16px;
+}
+
+.mdxWrapper li {
+  margin-bottom: 4px;
+}
+
+/* 分割线 */
+.mdxWrapper hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 24px 0;
+}
+
+/* 链接 */
+.mdxWrapper a {
+  color: var(--gradient-1);
+  text-decoration: none;
+}
+
+.mdxWrapper a:hover {
+  text-decoration: underline;
+}
+
+/* ── 错误状态 ── */
+
+.errorState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  border-radius: 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  text-align: center;
+  gap: 12px;
+}
+
+.errorIcon {
+  font-size: 36px;
+  color: #ff4d4f;
+}
+
+.errorText {
+  margin: 0;
+  font-size: 15px;
+  color: var(--text-secondary);
+}
+
+.errorDetail {
+  max-width: 100%;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background: var(--gradient-2);
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow-x: auto;
+}
+
+/* ── 空内容状态 ── */
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 24px;
+  border-radius: 8px;
+  background: var(--bg-card);
+  border: 1px dashed var(--border-color);
+}
+
+.emptyText {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+}

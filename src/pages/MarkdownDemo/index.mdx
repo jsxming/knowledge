@@ -1,0 +1,123 @@
+# MDX Markdown 渲染演示
+
+这是一段用 **MDX** 编写的 Markdown 内容。MDX 让你可以在 Markdown 中直接使用 **React 组件**！
+
+---
+
+## 基础语法
+
+### 文字样式
+
+**加粗文字** 和 *斜体文字*，以及 ~~删除线~~，还有 `行内代码`。
+
+### 列表
+
+**无序列表：**
+
+- 苹果
+- 香蕉
+- 樱桃
+
+**有序列表：**
+
+1. 第一步：安装依赖
+2. 第二步：配置 Vite
+3. 第三步：编写 MDX 内容
+
+### 链接与图片
+
+- 访问 [GitHub](https://github.com)
+- 访问 [MDX 官方文档](https://mdxjs.com)
+
+### 代码块
+
+```tsx
+import { useState } from 'react';
+
+function Counter() {
+  const [count, setCount] = useState(0);
+  return <button onClick={() => setCount(c => c + 1)}>
+    计数: {count}
+  </button>;
+}
+```
+
+### 表格
+
+| 特性 | MDX | Markdown |
+|------|-----|----------|
+| React 组件 | ✅ | ❌ |
+| JSX 语法 | ✅ | ❌ |
+| 纯文本 | ✅ | ✅ |
+| 可编程 | ✅ | ❌ |
+
+### 引用
+
+> MDX 将 Markdown 的简洁与 JSX 的表达能力结合在一起。
+> —— MDX 官方文档
+
+---
+
+## 在 MDX 中使用 React 组件
+
+你可以在 MDX 中直接导入并使用 React 组件，就像在 JSX 中一样。
+
+### 示例：卡片组件
+
+下面是一个直接在 MDX 中定义的 React 组件：
+
+export function TipCard({ title, children }) {
+  return (
+    <div style={{
+      padding: '16px 20px',
+      borderRadius: 8,
+      background: 'var(--bg-card)',
+      border: '1px solid var(--border-color)',
+      marginBottom: 16,
+    }}>
+      <strong style={{ fontSize: 15, color: 'var(--text-color)' }}>
+        {title || '💡 提示'}
+      </strong>
+      <div style={{ marginTop: 8, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+<TipCard title="🎉 MDX 真强大">
+  你可以在 Markdown 中直接嵌入 React 组件逻辑！
+  这意味着你的文档可以包含交互式元素、动态数据，甚至是完整的 UI 组件。
+</TipCard>
+
+<TipCard title="📦 零配置">
+  有了 `@mdx-js/rollup`，你只需要在 Vite 配置中添加一个插件，
+  就可以直接导入 `.mdx` 文件作为 React 组件使用了。
+</TipCard>
+
+### 条件渲染示例
+
+export function StatusBadge({ status }) {
+  const colors = {
+    success: { bg: '#52c41a', text: '#fff' },
+    warning: { bg: '#faad14', text: '#fff' },
+    error: { bg: '#ff4d4f', text: '#fff' },
+  };
+  const c = colors[status] || colors.success;
+  return (
+    <span style={{
+      display: 'inline-block',
+      padding: '2px 10px',
+      borderRadius: 12,
+      background: c.bg,
+      color: c.text,
+      fontSize: 12,
+      fontWeight: 600,
+      marginRight: 8,
+    }}>
+      {status === 'success' ? '✅ 成功' : status === 'warning' ? '⚠️ 警告' : '❌ 错误'}
+    </span>
+  );
+}
+
+当前状态：<StatusBadge status="success" /> <StatusBadge status="warning" /> <StatusBadge status="error" />

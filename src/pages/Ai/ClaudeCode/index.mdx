@@ -1,0 +1,718 @@
+# Claude Code AI使用说明
+
+Claude Code 是 Anthropic 官方推出的**AI 编程代理（Agentic Coding Tool）**，它的核心工作方式是：你把需求告诉它，由它来分析代码、规划方案、编辑文件、执行命令、修复问题——形成一个完整的**自主编码循环**。
+
+它运行在你的终端中，也支持 VS Code、JetBrains 插件、桌面应用、Web 等界面。底层使用的是同一个智能代理，只是交互界面不同。
+
+---
+
+## 目录
+
+- [1. 核心工作流](#核心工作流)
+  - [常用斜杠命令](#常用斜杠命令)
+  - [快捷键](#快捷键)
+- [2. CLAUDE.md：给AI一张地图](#claudemd给ai一张地图)
+  - [推荐结构](#推荐结构)
+  - [最佳实践](#最佳实践)
+- [3. 进阶对话技巧](#进阶对话技巧)
+  - [写好 Prompt 的核心原则](#写好-prompt-的核心原则)
+- [4. 扩展能力：Skills、Hooks、MCP](#扩展能力skillshooksmcp)
+  - [Skills（技能）](#skills技能)
+  - [Hooks（钩子）](#hooks钩子)
+  - [MCP（Model Context Protocol）](#mcpmodel-context-protocol)
+  - [插件（Plugins）](#插件plugins)
+- [5. 多Agent协作](#多agent协作)
+  - [Subagent（子代理）](#subagent子代理)
+  - [Workflow（工作流）](#workflow工作流)
+  - [Agent Teams（代理团队）](#agent-teams代理团队)
+- [6. 从0构建一个完整的产品](#从0构建一个完整的产品)
+  - [四阶段流程与关键原则](#第一阶段需求分析--方案设计)
+- [7. 持续进化](#持续进化)
+  - [管理上下文窗口](#管理上下文窗口)
+  - [不断迭代 CLAUDE.md](#不断迭代-claudemd)
+  - [使用记忆系统](#使用记忆系统)
+  - [构建自己的技能库](#构建自己的技能库)
+- [8. 项目针对性训练优化](#根据实际项目做针对性的训练优化)
+  - [训练方法论](#训练的方法论)
+  - [优化示例](#优化示例)
+  - [团队规模化](#团队规模化)
+  - [训练清单](#训练清单)
+- [9. 权限与安全](#权限与安全)
+  - [权限模式](#权限模式)
+  - [权限规则配置](#权限规则配置)
+  - [安全建议](#安全建议)
+- [10. 常见问题与最佳实践](#常见问题与最佳实践)
+  - [常见误区](#常见误区)
+  - [2026 新特性概览](#2026-新特性概览)
+
+---
+
+## 核心工作流
+
+Claude Code 的核心是**代理循环（Agentic Loop）**，每轮交互大致分成三个阶段：
+
+```
+理解上下文 → 执行操作 → 验证结果
+```
+
+这三个阶段是连续融合的，Claude 会根据上一步学到的东西决定下一步做什么，可以连续数十步自主完成。
+
+### 简单可复制的工作模式
+
+日常使用中，推荐按以下模式向 Claude Code 提出需求：
+
+```
+背景/目标 → 具体任务 → 参考/约束 → 验证标准
+```
+
+**举例：**
+
+```
+我需要优化项目的打包体积（背景）
+请在 vite.config.ts 中添加 rollupOptions 的代码分割配置（具体任务）
+参考 src/pages/ 下的路由结构，按页面级别做 dynamic import（参考）
+确认构建后 dist/ 中每个 chunk 不超过 200KB（验证标准）
+```
+
+### 关键操作技巧
+
+- **不要一次性给太多任务**——一件事说清楚比十件事模糊要好得多
+- **遇到复杂任务先让它出方案**——使用 `/plan` 进入计划模式，分析后再执行
+- **随时中断和纠正**——按 `Escape` 停止，然后重新描述方向
+- **使用 `/compact` 压缩上下文**——长会话中清理无用信息，保持聚焦
+- **使用子任务（Subagent）隔离上下文**——需要查阅大量代码时让子代理去搜索，不占主会话窗口
+
+### 常用斜杠命令
+
+| 命令 | 作用 | 使用时机 |
+|------|------|----------|
+| `/plan` | 进入只读计划模式 | 复杂任务前先分析方案 |
+| `/clear` | 清空对话历史 | 上下文太乱时重新开始 |
+| `/compact` | 压缩上下文 | 长会话中节省空间 |
+| `/model` | 切换模型（Opus/Sonnet） | 需要更强推理或更快响应时 |
+| `/effort` | 调整推理深度 | 简单任务用 low，复杂任务用 xhigh |
+| `/code-review` | 代码审查 | 提交前检查正确性缺陷 |
+| `/rewind` | 撤销到之前的检查点 | 走错方向时回退 |
+| `/help` | 查看所有可用命令 | 探索新功能 |
+| `/usage` | 查看用量明细 | 监控 token 消耗 |
+| `/init` | 初始化 CLAUDE.md | 新项目建立上下文 |
+| `/cd` | 切换工作目录 | 需要切换到项目其他子目录 |
+| `/memory` | 管理记忆文件 | 查看和编辑持久化知识 |
+
+### 快捷键
+
+| 快捷键 | 作用 |
+|--------|------|
+| `Escape` | 停止当前响应 |
+| `Escape` 两次 | 打开撤销菜单 |
+| `Shift+Tab` | 切换权限模式 |
+| `↑` 方向键 | 浏览历史对话 |
+| `Ctrl+V` | 粘贴图片（可解释截图） |
+| `Tab` | 自动补全路径和命令 |
+
+## CLAUDE.md：给AI一张地图
+
+CLAUDE.md 是这个工作流中最重要的一份文件——它是给 Claude Code 看的项目说明书，每次会话开始都会自动加载。
+
+### 为什么需要它
+
+没有 CLAUDE.md 时，Claude 对你的项目一无所知：不知道用什么技术栈、不知道代码结构、不知道团队规范。每次都要在对话里重复交代——有了 CLAUDE.md，这些信息就在项目根目录里存着，Claude 自动读取。
+
+### 推荐结构
+
+```
+# 项目名称
+
+## 技术栈
+- 框架：React 19 + TypeScript 5
+- 构建：Vite 6
+- UI 库：Ant Design 5 + @ant-design/icons
+- 路由：React Router v7
+- 样式：Less CSS Modules
+- 测试：Vitest + Testing Library
+
+## 常用命令
+- `yarn dev` — 启动开发服务器
+- `yarn build` — 生产构建
+- `yarn test` — 运行测试
+- `yarn lint` — 代码检查
+
+## 项目结构
+src/
+├── components/     # 共享组件
+├── pages/          # 页面
+├── utils/          # 工具函数
+├── hooks/          # 自定义 Hooks
+└── types/          # 类型定义
+
+## 编码规范
+- 组件使用函数组件 + Hooks
+- 使用 CSS Modules 管理样式，禁止内联样式
+- 导入使用 @/ 路径别名
+- 所有 API 调用放在 services/ 目录下
+
+## 注意事项
+- 这个项目没有后端，数据存在 localStorage
+- 主题系统通过 ThemeContext 管理
+- 路由常量定义在 src/constants/routes.ts
+```
+
+### 最佳实践
+
+- **保持精简**——控制在 200 行以内或 25KB。参考内容放到 Skills 里按需加载
+- **用 `/init` 自动生成**——Claude 会扫描项目生成初始版本，之后再手动优化
+- **持续迭代**——随着项目演进，把新发现的重要约定写进去
+- **团队成员共享**——CLAUDE.md 提交到 git，所有人受益
+- **分级别配置**：`~/.claude/CLAUDE.md`（个人全局）→ 项目根目录 CLAUDE.md（团队共享）→ `.claude/rules/`（按路径细粒度规则）
+
+## 进阶对话技巧
+
+### 写好 Prompt 的核心原则
+
+1. **具体而非模糊**
+
+   ❌ "优化这个页面"
+   ✅ "优化首页组件 HomePage，它目前加载了所有子组件的代码，请按路由做 lazy loading，目标是首屏 JS 体积减少 50%"
+
+2. **给参考，不重复描述**
+
+   ❌ "写一个表格组件"
+   ✅ "参考 src/components/UserTable/index.tsx 的写法，创建一个类似的产品表格，列包括：名称、价格、状态、操作"
+
+3. **提供验证标准**
+
+   ❌ "帮我改好这个 bug"
+   ✅ "修复当用户名为空时登录页崩溃的问题。验证方法：在登录页不输入用户名直接点登录，不应该看到白屏或控制台报错"
+
+4. **分步分解复杂任务**
+
+   ```
+   第一步：分析 src/api/user.ts 中的接口结构
+   第二步：在 src/pages/UserProfile/ 下创建用户信息展示组件
+   第三步：接入接口并处理 loading/error/empty 三种状态
+   ```
+
+5. **利用多轮对话迭代**
+   - 第一轮：给出大致方向
+   - 之后轮次：补充细节、纠正方向、逐步精炼
+   - 不要期望一次性完美——这是对话，不是一次指令
+
+### 善用 CLAUDE.md 减少重复
+
+如果你发现自己总是在对话中重复同样的话，比如"记得用 @/ 路径别名""不要用内联样式"，把这些写到 CLAUDE.md 里，Claude 会自动遵守。
+
+### 如何引导 Claude 更好地理解代码
+
+```
+先阅读 src/types/index.ts 和 src/utils/storage.ts 的数据层设计，
+然后基于这个模式在 src/types/ 下新增 Notification 类型定义。
+```
+
+### Prompt 中嵌入代码引用
+
+使用 @ 符号引用文件或符号，Claude 会自动读取：
+```
+请优化 @src/components/UserCard 的渲染性能
+```
+
+## 扩展能力：Skills、Hooks、MCP
+
+> 三者的关系：Skills 教 Claude 怎么做事，Hooks 在关键节点自动执行检查，MCP 把外面的世界接进来。
+
+### 场景
+
+使用 AI 自己总在重复同样的话：每次提交代码前念叨一遍「先跑个 lint」、每次新建组件要交代一遍项目规范、每次查数据要手动复制 SQL 结果贴给 Claude。这种重复一旦超过三次，就该想办法自动化了。
+
+### Skills（技能）
+
+Skills 是可复用的指令集，告诉 Claude 特定场景下该怎么做。它可以是一次代码审查流程、一个部署步骤、或者项目特定的编码规范。
+
+**Skill 的结构：**
+
+```markdown
+# .claude/skills/deploy/SKILL.md
+---
+name: deploy
+description: 部署到生产环境的步骤
+---
+
+执行以下步骤部署：
+1. 运行 yarn build，确认构建成功
+2. 运行 yarn test，所有测试通过
+3. 创建 git tag v{版本号} 并推送
+4. 登录服务器执行 docker-compose up -d
+```
+
+**Skill 种类：**
+- **参考型**：知识类的，Claude 根据上下文决定是否使用（如 API 设计规范）
+- **动作型**：通过斜杠命令手动调用（如 `/deploy`）
+- **自动触发**：Claude 根据任务判断自动应用
+
+**Skill 加载机制：**
+- 会话开始时只加载描述（约 30-50 token）
+- 当任务匹配时，完整指令才加载到上下文中
+- 这叫"渐进式加载"，不会浪费对话空间
+
+**最佳实践：**
+- 把参考性的知识放到 Skills 里（API 文档、设计模式），让 CLAUDE.md 保持精简
+- 识别的信号：同一种话你说了 3 次以上，就该做成 Skill 了
+- Skills 支持命名参数 `$ARGUMENTS[1]` 和动态上下文注入 `！\`cmd\``
+
+### Hooks（钩子）
+
+Hooks 是**强制执行的自动化检查点**——在特定生命周期事件发生时自动运行脚本。与 CLAUDE.md 的"建议"性质不同，Hooks 是"强制"的。
+
+**可用的事件（约 30 种）：**
+
+| 事件 | 触发时机 |
+|------|----------|
+| `SessionStart` | 会话开始或恢复 |
+| `SessionEnd` | 会话结束 |
+| `UserPromptSubmit` | 你提交 prompt |
+| `PreToolUse` | 工具调用前（可阻止操作） |
+| `PostToolUse` | 工具调用成功后 |
+| `PermissionDenied` | 权限被拒绝时 |
+| `FileChanged` | 监控的文件发生变更 |
+| `PreCompact` / `PostCompact` | 上下文压缩前后 |
+
+**配置示例：**
+
+```json
+// .claude/settings.local.json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npm run lint --fix"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+这个配置的效果：每次 Claude 编辑完文件，自动运行 lint 检查并修复。
+
+**Hook 退出码约定：**
+- `0` = 允许继续
+- `1` = 报告错误但继续
+- `2` = 阻止操作（阻塞危险操作）
+
+**常用 Hook 场景：**
+- 每次修改后自动格式化代码
+- 提交前阻止推送到保护分支
+- 在编辑敏感文件时发出警告
+- 构建失败时自动通知
+
+### MCP（Model Context Protocol）
+
+MCP 是 Claude Code 连接外部世界的**开放标准协议**。通过 MCP 服务器，Claude 可以查询数据库、操作 GitHub、浏览网页、调用第三方 API。
+
+**常用 MCP 服务：**
+
+| MCP 服务 | 用途 | 安装命令 |
+|----------|------|----------|
+| GitHub | PR 审查、Issue 管理 | `npx @modelcontextprotocol/server-github` |
+| Playwright | 浏览器自动化测试 | `npx @playwright/mcp` |
+| PostgreSQL | 数据库查询 | 使用各厂商 MCP |
+| Filesystem | 本地文件操作 | 内置支持 |
+| Slack | 发送消息到频道 | 官方 MCP |
+| Notion | 读写页面、搜索数据库 | 官方 MCP |
+
+**配置方式：**
+
+```json
+// .claude.json 或项目 .mcp.json
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": { "GITHUB_TOKEN": "${GITHUB_TOKEN}" }
+    }
+  }
+}
+```
+
+**配置作用域：**
+- `~/.claude.json`（用户级，所有项目可用）
+- `.mcp.json`（项目级，可版本控制共享给团队）
+- `.mcp.local.json`（项目本地覆盖，不提交到 git）
+
+**注意事项（2026年7月验证）：**
+- Playwright MCP 使用 `@playwright/mcp`（Microsoft 出品），非 `@anthropic/mcp-server-playwright`
+- PostgreSQL MCP 不推荐 `@modelcontextprotocol/server-postgres`（已归档），使用厂商 MCP
+- 不要连接太多 MCP 服务器，v2.1.195+ 已支持按需加载（Tool Search），但仍建议保持精简
+
+### 插件（Plugins）
+
+插件是 Skills、Hooks、MCP 服务器等的**打包分发单元**。一个插件可以同时包含多个技能、钩子、MCP 配置、LSP 配置和主题。
+
+**插件结构：**
+```
+my-plugin/
+├── .mcp.json           # 插件自带的 MCP 服务器
+├── hooks/hooks.json    # 插件自带的事件钩子
+├── skills/             # 插件自带的技能
+├── agents/             # 插件自带的子代理
+└── themes/             # 插件自带的主题
+```
+
+**安装：** `claude plugin install <name>`
+
+## 多Agent协作
+
+当单个 Claude 的上下文窗口不够用，或者任务可以被并行处理时，就需要多 Agent 协作。
+
+### Subagent（子代理）
+
+Subagent 是**独立的迷你 Claude**，拥有自己的上下文窗口。主会话可以派生子代理去执行特定的子任务，然后取回结果。
+
+**使用场景：**
+- 大量的代码阅读和搜索（不占主会话上下文）
+- 并行的独立任务（一次最多 7 个同时运行）
+- 专门的检查任务（安全审查、性能分析）
+- 上下文窗口快满时隔离工作
+
+**实用模式：**
+
+```
+# 主会话中这么用：
+1. 派一个子代理去搜索项目中所有未处理的边界情况
+2. 派另一个子代理去审查 API 层的安全性
+3. 主会话继续做 UI 开发
+4. 子代理返回后，整合结果
+```
+
+子代理默认在后台运行（v2.1.198+），嵌套深度最多 5 层。每层子代理有独立的工具控制（`tools` 白名单 / `disallowedTools` 黑名单）。
+
+### Workflow（工作流）
+
+对于更大规模的并行化，Claude Code 提供了 Workflow 系统——一个脚本可以编排几十到几百个子代理。
+
+**Workflow 脚本结构：**
+
+```javascript
+export const meta = {
+  name: 'audit-code',
+  description: '全面审查代码安全性和性能',
+  phases: [
+    { title: '扫描' },
+    { title: '验证' },
+    { title: '报告' },
+  ],
+}
+
+phase('扫描')
+const scanResults = await parallel(
+  finders.map(f => () => agent(f.prompt, { phase: '扫描' }))
+)
+
+phase('验证')
+const verified = await parallel(
+  scanResults.map(r => () => agent(`验证：${r}`, { phase: '验证' }))
+)
+
+phase('报告')
+return agent(`汇总所有发现并生成报告`, { phase: '报告' })
+```
+
+**核心 API：**
+- `agent(prompt, opts)` — 派生子代理（支持 schema 校验输出、模型选择、工作区隔离）
+- `parallel(thunks)` — 并行执行多个子代理（返回全部结果后才继续）
+- `pipeline(items, stage1, stage2)` — 流水线模式，每个 item 独立流过各阶段
+- `phase(title)` — 标记当前阶段
+- `log(message)` — 输出进度信息
+
+**典型模式：多维度审查**
+
+```
+pipeline(
+  DIMENSIONS,           // 每个审查维度
+  d => agent(d.prompt, { schema: FINDINGS }),    // 审查阶段
+  review => parallel(                             // 验证阶段（并行）
+    review.findings.map(f => () => agent(`验证：${f.title}`, { schema: VERDICT }))
+  )
+)
+```
+
+这个模式的精妙之处：维度 A 发现的问题开始验证了，维度 B 还在审查——没有浪费等待时间。
+
+**使用时机：**
+- 需要全面审计/审查时
+- 需要大规模重构时（配合 worktree 隔离）
+- 需要在多个维度并行分析时
+- 做深度研究时（`/deep-research`）
+
+### Agent Teams（代理团队）
+
+多个独立的 Claude Code 会话可以组成团队，通过 `SendMessage` 互相通信、共享任务。适合需要多个视角协作的复杂场景。
+
+## 从0构建一个完整的产品
+
+Claude Code 可以独立完成从零到一的完整产品开发。以下是经过验证的流程：
+
+### 第一阶段：需求分析 + 方案设计
+
+```
+1. 描述产品目标："帮我建一个个人知识管理工具"
+2. Claude 会分析需求、提出技术选型建议
+3. 使用 /plan 进入计划模式，让 Claude 输出架构方案
+4. 确认方案后开始实施
+```
+
+### 第二阶段：基础搭建
+
+```
+1. /init 初始化项目结构
+2. 自动生成 CLAUDE.md
+3. 搭建基础路由、布局、主题
+4. 建立数据层（类型定义 + 存储层）
+```
+
+### 第三阶段：功能迭代
+
+```
+1. 每个功能模块独立开发（如：知识库 CRUD → 搜索 → 分类 → 标签）
+2. 每完成一个模块做一次 /code-review
+3. 使用 git 提交，Claude 会自动生成 commit message
+4. 发现问题直接描述，Claude 会定位修复
+```
+
+### 第四阶段：打磨优化
+
+```
+1. 性能优化（lazy loading、代码分割、缓存策略）
+2. 体验优化（loading 状态、错误处理、空状态）
+3. 视觉打磨（主题系统、动效、响应式）
+4. 生产构建和部署配置
+```
+
+### 关键原则
+
+- **小步快跑**：每个对话聚焦一个模块，不要"一次全做"
+- **善用多轮对话**：先出框架，再填充细节，最后打磨
+- **用 /code-review 做质量检查**：每个大模块完成后都做一次
+- **边做边积累**：把项目中形成的约定写入 CLAUDE.md
+
+## 持续进化
+
+### 管理上下文窗口
+
+Claude Code 的上下文窗口现在支持 100 万 token（Claude Opus 4.8 / Sonnet 5），但合理管理仍然重要：
+
+| 上下文占用 | 操作建议 |
+|------------|----------|
+| 0–50% | 正常使用 |
+| 50–70% | 考虑清理无用内容 |
+| 70–90% | 运行 `/compact` 压缩 |
+| 90%+ | 运行 `/clear` 或开始新会话 |
+
+**减少上下文占用的技巧：**
+- 使用 Subagent 处理大量代码阅读任务
+- 使用 Skills 渐进式加载参考内容
+- 定期 `/compact`，必要时用 `/compact focus on X` 指定保留重点
+- 持久化的规则放在 CLAUDE.md，不放在对话历史里
+
+### 不断迭代 CLAUDE.md
+
+CLAUDE.md 不是一次性产物，它应该随着项目发展而进化：
+
+- **每完成一个大功能**：检查有没有值得记录的约定
+- **每踩到一个坑**：写到"注意事项"部分
+- **每发现重复模式**：考虑做成 Skill 而不是放在 CLAUDE.md
+- **团队成员的意见**：添加新的编码规范
+
+### 使用记忆系统
+
+Claude Code 的 Auto Memory 会自动在学习过程中保存重要信息：
+- 项目的模式偏好
+- 你习惯的开发方式
+- 常用的代码风格
+
+记忆文件自动保存到 `~/.claude/projects/<project>/memory/`，使用 `/memory` 可以查看和编辑。每次会话加载前 200 行或 25KB。
+
+### 构建自己的技能库
+
+随着使用时间增长，你会积累一套属于自己的 Skills：
+
+```
+~/.claude/skills/
+├── code-review/       # 代码审查规范（含团队特有规则）
+├── deploy/            # 部署流程
+├── component/         # 组件编写规范
+├── api-design/        # API 设计标准
+└── testing/           # 测试编写指南
+```
+
+这些 Skills 可以跨项目共享，也可以放到团队仓库里统一分发。
+
+### 定期做项目健康检查
+
+```
+1. /code-review — 检查当前代码的正确性
+2. 检查 CLAUDE.md 是否过时
+3. 检查 Skills 是否还有用
+4. 阅读 changelog 了解 Claude Code 的新功能
+```
+
+## 根据实际项目做针对性的训练优化
+
+"训练"在这里特指**优化 CLAUDE.md 和 Skills**，让 Claude 在你的项目中表现得更好。不是模型微调，而是上下文优化。
+
+### 训练的方法论
+
+**一次优化的循环：**
+
+```
+发现 Claude 在一个场景表现不好
+→ 分析原因（缺上下文？缺规范？缺示例？）
+→ 在 CLAUDE.md 或 Skill 中添加对应内容
+→ 新会话中测试效果
+→ 迭代优化
+```
+
+### 优化示例
+
+**场景 1：Claude 写的组件风格不一致**
+
+问题：组件有的用函数声明、有的用箭头函数；有的文件命名 camelCase、有的 kebab-case。
+解决：在 CLAUDE.md 中添加具体的编码规范。
+
+```
+## 组件规范
+- 使用 const + 箭头函数定义组件（const MyComp = () => {}）
+- 文件名使用 PascalCase（UserCard.tsx）
+- 类型定义放在组件文件底部或单独的 types.ts
+- CSS Module 文件命名为 index.module.less
+```
+
+**场景 2：Claude 不理解项目的数据流**
+
+问题：每次修改数据逻辑都要重新解释一遍 localStorage 的用法。
+解决：在 CLAUDE.md 中描述数据层。
+
+```
+## 数据层
+- 所有数据持久化在 localStorage，键前缀为 my_app_
+- 操作数据使用 src/utils/storage.ts 封装的 hook
+- 不要直接调用 localStorage API
+- 类型定义统一在 src/types/index.ts 中
+```
+
+**场景 3：Claude 不熟悉特定的库用法**
+
+问题：使用 Ant Design 的 Table 组件时，Claude 经常用错 API。
+解决：创建与项目相关的 Skill。
+
+```markdown
+# .claude/skills/antd-table/SKILL.md
+
+## Ant Design Table 使用规范
+- 使用 columns 配置列，每个列需要 dataIndex 和 title
+- 服务端分页使用 onChange 回调 + pagination 配置
+- 操作列使用 render 自定义渲染
+- 详见项目使用的 Ant Design v5 文档
+```
+
+### 团队规模化
+
+当团队多人使用 Claude Code 时：
+
+1. **共享 CLAUDE.md**：提交到 git，团队统一
+2. **共享 Skills**：放在 `.claude/skills/` 下，版本控制
+3. **共享 MCP 配置**：`.mcp.json` 放项目根目录
+4. **共享 Hooks 配置**：`.claude/hooks/hooks.json`
+5. **Settings 分层管理**：项目共享的放 `.claude/settings.json`，个人覆盖放 `.claude/settings.local.json`
+
+### 训练清单
+
+遇到以下信号，就该优化了：
+
+- [ ] Claude 连续多次犯错同类问题
+- [ ] 你在对话中重复交代同样的背景
+- [ ] 项目中新增了重要的架构决策
+- [ ] 发现了需要记录的最佳实践或坑
+- [ ] 项目技术栈升级了
+- [ ] 团队规模扩大，需要标准化 AI 使用方式
+
+## 权限与安全
+
+Claude Code 提供了多级权限模式，平衡效率和安全：
+
+### 权限模式
+
+| 模式 | 行为 | 适用场景 |
+|------|------|----------|
+| **手动**（默认） | 每次文件编辑和命令执行都请求许可 | 学习阶段、不熟悉的项目 |
+| **接受编辑** | 编辑文件和常见命令无需确认 | 日常开发 |
+| **计划模式** | 只读，不修改文件 | 复杂任务前出方案 |
+| **自动模式** | 自动评估安全性，阻止危险操作 | 有经验的用户 |
+| **不询问** | 仅运行白名单中的操作 | CI/CD 等自动场景 |
+
+### 权限规则配置
+
+可以在 `settings.json` 中预设权限规则，减少重复确认：
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status)",
+      "Bash(git commit *)",
+      "Bash(npm *)",
+      "Edit(/src/**)"
+    ],
+    "deny": [
+      "Bash(rm -rf /)",
+      "Bash(sudo *)"
+    ]
+  }
+}
+```
+
+### 安全建议
+
+- 使用 `/fewer-permission-prompts` 命令分析你的使用习惯，自动生成合理的权限配置
+- 运行 `claude doctor` 或 `/doctor` 做完整的设置检查
+- 使用检查点（Checkpoint）功能——每次编辑文件前自动备份，按两次 Escape 可以撤销
+
+## 常见问题与最佳实践
+
+### 效率提升的关键习惯
+
+1. **每次建项目先 `/init`**——形成习惯，少走弯路
+2. **复杂任务先 `/plan`**——先分析再动手，避免改三遍
+3. **提交前做 `/code-review`**——减少 PR 返工
+4. **用 `/rewind` 而不是手动撤销**——安全高效
+5. **发现重复写 Skill**——一次投资，永久受益
+
+### 常见误区
+
+| 误区 | 正确做法 |
+|------|----------|
+| 把所有规范都塞进 CLAUDE.md | 保持 200 行以内，参考内容用 Skill |
+| 一次给太多任务 | 拆解为多轮对话 |
+| 不审阅 Claude 的修改 | 审查 diff 是基本责任 |
+| 认为弱模型更省钱 | 弱模型多轮修正的 token 消耗往往更多 |
+| 一个会话用到底不压缩 | 定期 `/compact` 或 `/clear` |
+| 不写任何 CLAUDE.md | 写与不写，效率差 3-5 倍 |
+
+### 2026 新特性概览
+
+- **Claude Opus 4.8 + Sonnet 5**：原生 100 万 token 上下文，更强的编码能力
+- **自动模式（Auto Mode）**：安全评估自动放行安全操作，在 Pro 计划上也可用
+- **Workspace（工作空间）**：GitHub Actions / GitLab CI / 多云平台集成
+- **Plugins 生态**：技能、钩子、MCP 的打包分发系统
+- **Agent 视图**：`claude agents` 查看所有运行中的代理
+- **Web 端 Claude Code**：在浏览器中完成完整开发工作
+- **Routines（例行任务）**：定时/事件触发的云代理
+
+---
+
+> **最后一条原则**：Claude Code 是你的**编程搭档**，不是自动补全工具。你会越来越信任它，但永远保留最终判断权——审查、测试、验证，这是你作为工程师不可替代的价值。
