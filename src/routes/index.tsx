@@ -8,6 +8,7 @@ import companyPath from './paths/company';
 import markdownPath from './paths/markdown';
 import aiPath from './paths/ai';
 import ClaudeCode from '@/pages/Ai/ClaudeCode';
+import Study from '@/pages/Ai/Study';
 
 const routeConfig = [
   {
@@ -21,6 +22,7 @@ const routeConfig = [
           { path: companyPath.BASE, element: <CompanyBase /> },
           { path: markdownPath.DEMO, element: <MarkdownDemo /> },
           { path: aiPath.BASE, element: <ClaudeCode /> },
+          { path: aiPath.STUDY, element: <Study /> },
         ],
       },
     ],

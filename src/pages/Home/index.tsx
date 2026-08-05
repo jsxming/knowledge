@@ -19,7 +19,7 @@ export default function Home() {
   return (
     <div>
       <Row gutter={16}>
-        <Col xs={24} md={17}>
+        <Col xs={24} md={24}>
           <Layout className={styles.sidebarLayout}>
             <Sider width={200} theme="light" className={styles.sidebar}>
               <Menu
@@ -36,10 +36,10 @@ export default function Home() {
             </Content>
           </Layout>
         </Col>
-        <Col xs={24} md={7}>
+        {/* <Col xs={24} md={7}>
           <CalendarWidget />
           <TodoList />
-        </Col>
+        </Col> */}
       </Row>
     </div>
   );

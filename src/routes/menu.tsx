@@ -25,6 +25,8 @@ export const menuItems: MenuItem[] = [
     label: 'AI',
     children: [
       { key: aiPath.BASE, label: 'ClaudeCode' },
+      { key: aiPath.STUDY, label: '学习' },
+      
     ],
   },
 ];
