@@ -2,12 +2,19 @@
 set -euo pipefail
 
 # 非交互式 shell (systemd/cron/ssh) 下 nvm 不会自动加载，手动加入 PATH
-NVM_NODE_V20_BIN=$(echo /home/spotec/.nvm/versions/node/v20.*.*/bin)
-echo $NVM_NODE_V20_BIN
-# 确保目录真实存在再加入 PATH，防止通配符匹配失败导致写错 PATH
-if [ -d "$NVM_NODE_V20_BIN" ]; then
-    export PATH="$NVM_NODE_V20_BIN:${PATH}"
-    echo "成功将 Node.js 路径加入 PATH: $NVM_NODE_V20_BIN"
+# 尝试 v24，不存在则用 v20
+NVM_NODE_V24_BIN=$(echo /home/spotec/.nvm/versions/node/v24.*.*/bin)
+if [ -d "$NVM_NODE_V24_BIN" ]; then
+    export PATH="$NVM_NODE_V24_BIN:${PATH}"
+    echo "使用 Node.js v24: $NVM_NODE_V24_BIN"
+else
+    NVM_NODE_V20_BIN=$(echo /home/spotec/.nvm/versions/node/v20.*.*/bin)
+    if [ -d "$NVM_NODE_V20_BIN" ]; then
+        export PATH="$NVM_NODE_V20_BIN:${PATH}"
+        echo "使用 Node.js v20: $NVM_NODE_V20_BIN"
+    else
+        echo "警告: 未找到 v24 或 v20，PATH 未设置"
+    fi
 fi
 
 #export PATH="/home/ec_user/.nvm/versions/node/v20.19.2/bin:${PATH}"
