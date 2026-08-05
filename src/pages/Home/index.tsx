@@ -1,7 +1,5 @@
 import { Row, Col, Layout, Menu } from 'antd';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import CalendarWidget from '@/components/CalendarWidget';
-import TodoList from '@/components/TodoList';
 import { menuItems } from '@/routes/menu';
 import type { MenuProps } from 'antd';
 import styles from './index.module.less';
