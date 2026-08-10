@@ -4,6 +4,7 @@ import { Outlet, Link } from 'react-router-dom';
 import { BookOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import ThemeSwitch from '@/components/ThemeSwitch';
+import StarFieldBackground from '@/components/StarFieldBackground';
 import styles from './index.module.less';
 
 const { Header, Content } = Layout;
@@ -21,6 +22,7 @@ export default function AppLayout() {
 
   return (
     <Layout className={`app-layout ${styles.layout}`}>
+      <StarFieldBackground />
       <Header className={styles.header}>
         <Link to="/" className={styles.logoLink}>
           <BookOutlined className={styles.logoIcon} />
