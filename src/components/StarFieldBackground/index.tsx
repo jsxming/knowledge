@@ -95,7 +95,7 @@ function createStars(size: Size): Star[] {
   for (let i = 0; i < STARS_COUNT; i++) {
     stars.push({
       x: Math.random() * size.width,
-      y: Math.random() * size.height * 0.78, // 星星只出现在山峦以上
+      y: Math.random() * size.height * 0.7, // 星星只出现在山峦以上
       r: 0.5 + Math.random() * 1.3,
       baseAlpha: 0.35 + Math.random() * 0.6,
       phase: Math.random() * Math.PI * 2,
@@ -117,10 +117,19 @@ export default function StarFieldBackground() {
     if (!ctx) return;
 
     let size: Size = { width: window.innerWidth, height: window.innerHeight };
-    let stars: Star[] = createStars(size);
+    let stars: Star[];
     let rafId = 0;
     let running = true;
-    let startTime = performance.now();
+    const startTime = performance.now();
+
+    // 无障碍降级：静态星空（只绘制一帧）
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const draw = (time: number): void => {
+      drawSky(ctx, size);
+      drawMountains(ctx, size);
+      drawStars(ctx, stars, time);
+    };
 
     const resize = (): void => {
       const dpr = window.devicePixelRatio || 1;
@@ -129,30 +138,25 @@ export default function StarFieldBackground() {
       canvas.height = size.height * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       stars = createStars(size);
+      if (reducedMotion) draw(0);
     };
     resize();
     window.addEventListener('resize', resize);
-
-    // 无障碍降级：静态星空（只绘制一帧）
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const onVisibilityChange = (): void => {
       if (document.hidden) {
         running = false;
         cancelAnimationFrame(rafId);
       } else {
-        running = true;
-        startTime = performance.now();
-        rafId = requestAnimationFrame(tick);
+        if (reducedMotion) {
+          draw(0);
+        } else {
+          running = true;
+          rafId = requestAnimationFrame(tick);
+        }
       }
     };
     document.addEventListener('visibilitychange', onVisibilityChange);
-
-    const draw = (time: number): void => {
-      drawSky(ctx, size);
-      drawMountains(ctx, size);
-      drawStars(ctx, stars, time);
-    };
 
     function tick(now: number): void {
       if (!running) return;
