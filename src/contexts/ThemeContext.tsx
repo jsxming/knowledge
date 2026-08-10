@@ -31,10 +31,16 @@ const themeConfigMap: Record<ThemeName, ThemeConfig> = {
   tech: {
     token: {
       colorPrimary: '#1677ff',
-      colorLink: '#1677ff',
+      colorLink: '#69b1ff',
       borderRadius: 8,
+      colorBgContainer: '#131b30',
+      colorBgElevated: '#1a2540',
+      colorBgLayout: '#0b1020',
+      colorBorder: '#243356',
+      colorText: '#e8ecf8',
+      colorTextSecondary: '#8b95b5',
     },
-    algorithm: theme.defaultAlgorithm,
+    algorithm: theme.darkAlgorithm,
   },
   aesthetic: {
     token: {

@@ -19,7 +19,7 @@ export default function Home() {
       <Row gutter={16}>
         <Col xs={24} md={24}>
           <Layout className={styles.sidebarLayout}>
-            <Sider width={200} theme="light" className={styles.sidebar}>
+            <Sider width={200} theme="dark" className={styles.sidebar}>
               <Menu
                 mode="inline"
                 selectedKeys={[location.pathname]}
