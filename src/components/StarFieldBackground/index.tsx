@@ -269,8 +269,10 @@ export default function StarFieldBackground() {
       drawSky(ctx, size);
       drawMountains(ctx, size);
       drawStars(ctx, stars, time);
-      updateParticles(particles, mouse, size);
-      drawParticles(ctx, particles, time);
+      if (!reducedMotion) {
+        updateParticles(particles, mouse, size);
+        drawParticles(ctx, particles, time);
+      }
     };
 
     const resize = (): void => {
@@ -292,6 +294,13 @@ export default function StarFieldBackground() {
       mouse.active = true;
     };
     window.addEventListener('pointermove', onPointerMove, { passive: true });
+
+    const onPointerOut = (e: PointerEvent): void => {
+      if (e.relatedTarget === null) {
+        mouse.active = false;
+      }
+    };
+    window.addEventListener('pointerout', onPointerOut, { passive: true });
 
     const onVisibilityChange = (): void => {
       if (document.hidden) {
@@ -333,6 +342,7 @@ export default function StarFieldBackground() {
       cancelAnimationFrame(rafId);
       window.removeEventListener('resize', resize);
       window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerout', onPointerOut);
       document.removeEventListener('visibilitychange', onVisibilityChange);
     };
   }, [themeName]);
