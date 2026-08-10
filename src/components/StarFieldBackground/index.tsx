@@ -11,6 +11,8 @@ const STAR_COLOR = '200, 225, 255';
 const PARTICLES_COUNT = 70;
 const MOUSE_RADIUS = 150;
 const PARTICLE_COLOR = '124, 196, 255';
+const METEOR_MIN_INTERVAL = 8000;
+const METEOR_MAX_INTERVAL = 20000;
 
 interface Star {
   x: number;
@@ -28,6 +30,15 @@ interface Particle {
   vy: number;
   r: number;
   phase: number;
+}
+
+interface Meteor {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  life: number; // 0 → 1 生命周期进度
+  maxLife: number; // 以帧为单位
 }
 
 interface Size {
@@ -185,6 +196,51 @@ function drawParticles(ctx: CanvasRenderingContext2D, particles: Particle[], tim
   }
 }
 
+function spawnMeteor(size: Size): Meteor {
+  const angle = (Math.PI / 6) + Math.random() * (Math.PI / 6); // 30°~60° 斜坠
+  const speed = 6 + Math.random() * 4;
+  return {
+    x: size.width * (0.5 + Math.random() * 0.5), // 起点在右上半区
+    y: size.height * Math.random() * 0.3,
+    vx: -Math.cos(angle) * speed,
+    vy: Math.sin(angle) * speed,
+    life: 0,
+    maxLife: 60 + Math.random() * 30, // 0.6~1s（60fps）
+  };
+}
+
+function updateMeteors(meteors: Meteor[], size: Size): void {
+  for (let i = meteors.length - 1; i >= 0; i--) {
+    const m = meteors[i];
+    m.life += 1;
+    m.x += m.vx;
+    m.y += m.vy;
+    if (m.life >= m.maxLife || m.x < -100 || m.y > size.height) {
+      meteors.splice(i, 1);
+    }
+  }
+}
+
+// 白→蓝渐变拖尾，透明度随 life 先升后降
+function drawMeteor(ctx: CanvasRenderingContext2D, m: Meteor): void {
+  const progress = m.life / m.maxLife;
+  const alpha = Math.sin(progress * Math.PI);
+  const dirX = m.vx / Math.hypot(m.vx, m.vy);
+  const dirY = m.vy / Math.hypot(m.vx, m.vy);
+  const tailLen = 60 + progress * 40;
+  const tailX = m.x - dirX * tailLen;
+  const tailY = m.y - dirY * tailLen;
+  const gradient = ctx.createLinearGradient(tailX, tailY, m.x, m.y);
+  gradient.addColorStop(0, 'rgba(200, 232, 255, 0)');
+  gradient.addColorStop(1, `rgba(220, 240, 255, ${(0.9 * alpha).toFixed(3)})`);
+  ctx.strokeStyle = gradient;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(tailX, tailY);
+  ctx.lineTo(m.x, m.y);
+  ctx.stroke();
+}
+
 export default function StarFieldBackground() {
   const { themeName } = useTheme();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -199,6 +255,8 @@ export default function StarFieldBackground() {
     let size: Size = { width: window.innerWidth, height: window.innerHeight };
     let stars: Star[];
     let particles: Particle[];
+    let meteors: Meteor[] = [];
+    let nextMeteorAt = performance.now() + METEOR_MIN_INTERVAL + Math.random() * (METEOR_MAX_INTERVAL - METEOR_MIN_INTERVAL);
     let rafId = 0;
     let running = true;
     const startTime = performance.now();
@@ -252,8 +310,15 @@ export default function StarFieldBackground() {
 
     function tick(now: number): void {
       if (!running) return;
+      if (!ctx) return;
       const time = now - startTime;
       draw(time);
+      if (performance.now() > nextMeteorAt) {
+        meteors.push(spawnMeteor(size));
+        nextMeteorAt = performance.now() + METEOR_MIN_INTERVAL + Math.random() * (METEOR_MAX_INTERVAL - METEOR_MIN_INTERVAL);
+      }
+      updateMeteors(meteors, size);
+      meteors.forEach((m) => drawMeteor(ctx, m));
       rafId = requestAnimationFrame(tick);
     }
 
